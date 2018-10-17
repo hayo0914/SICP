@@ -159,7 +159,7 @@
   (define result
     (sqrt x))
   (display (format "x = ~a\n" x))
-  (display (format "result: ~a\n" x))
+  (display (format "result: ~a\n" result))
   (display (format "diff: ~a\n" (-(square result)
                                   x))))
 (test-sqrt 2)
@@ -171,6 +171,35 @@
 (test-sqrt 0.0000001)
 (test-sqrt 0.00000001)
 
+;; Excercise 1.8 (Using Newton Method)
+(define (cube x)
+  (* x x x))
+(define (cube-iter guess x)
+  (cube-iter2 guess x (* 2 guess)))
+(define (cube-iter2 guess x prev)
+  (if (good-enough?-change guess x prev)
+    guess
+    (cube-iter2 (improve guess x) x guess)))
+(define (improve guess x)
+  (/ (+ (/ x (* guess guess)) (* 2 guess)) 3))
+(define (average x y)
+  (/ (+ x y) 2))
+(define (good-enough?-change guess x prev)
+  (< (/ (abs (- guess prev)) guess) 1e-8))
+(define (sqrt x)
+  (cube-iter 1.0 x))
+(define (test-cube x)
+  (define result
+    (sqrt x))
+  (display (format "x = ~a\n" x))
+  (display (format "result: ~a\n" result))
+  (display (format "diff: ~a\n" (-(cube result)
+                                  x))))
+(test-cube 27)
+(test-cube 8)
+(test-cube 1)
+(test-cube 0.01)
+(test-cube 0.0001)
 
 
 
