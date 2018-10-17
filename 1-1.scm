@@ -65,6 +65,22 @@
 ;; 3. その値が偽であれば, その次は<p3>が評価される.
 ;; 真となる場合, インタプリタは対応するクローズの
 ;; consequent expressions(結果式) <e>の値を条件式の値として返す.
+;; 真となる<p>が見つからない場合, condの値は未定義.
+;;
+;; 
+
+;; Excercise 1.3
+(define (test x y z)
+  (cond ((and (>= x z) (>= y z)) (+ x y))
+        ((and (>= x y) (>= z y)) (+ x z))
+        (else (+ y z))))
+(test 1 2 3)
+(test 2 3 1)
+(test 3 2 1)
+(test 3 3 3)
+(test 5 3 3)
+(test 3 5 3)
+(test 3 3 5)
 
 ;; 1.1.7
 (define (sqrt-iter guess x)
