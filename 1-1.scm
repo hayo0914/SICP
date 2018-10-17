@@ -82,6 +82,12 @@
 (test 3 5 3)
 (test 3 3 5)
 
+;; Excercise 0.5
+(define (p) (p))
+(define (test x y)
+  (if (= x 0) 0 y))
+(test 0 (p))
+
 ;; 1.1.7
 (define (sqrt-iter guess x)
   (if (good-enough? guess x)
@@ -92,17 +98,32 @@
 (define (average x y)
   (/ (+ x y) 2))
 (define (good-enough? guess x)
-  (< (abs (- (square guess) x)) 0.001))
+  (< (abs (- (square guess) x)) 1e-8))
 (define (sqrt x)
   (sqrt-iter 1.0 x))
-(sqrt 9)
-(sqrt (+ 100 37))
-(sqrt 1000000)
-(sqrt 13904823)
+(define (test-sqrt x)
+  (define result
+    (sqrt x))
+  (display (format "x = ~a\n" x))
+  (display (format "result: ~a\n" x))
+  (display (format "diff: ~a\n" (-(square result)
+                                  x))))
+(test-sqrt 2)
+(test-sqrt 1)
+(test-sqrt 0.001)
+(test-sqrt 0.0001)
+(test-sqrt 0.00001)
+(test-sqrt 0.000001)
+(test-sqrt 0.0000001)
+(test-sqrt 0.00000001)
 
+
+;; Excercise 1.6
 ; this does not work
+(define (square x)
+  (* x x))
 (define (good-enough? guess x)
-  (< (abs (- (square guess) x)) 0.001))
+  (< (abs (- (square guess) x)) 1e-8))
 (define (new-if predicate then-clause else-clause)
   (print predicate)
   (cond (predicate then-clause)
@@ -114,5 +135,42 @@
     guess
     ((print x)(sqrt-iter (improve guess x) x))))
 (sqrt 9)
+
+;; Excercise 1.7
+(define (square x)
+  (* x x))
+(define (sqrt-iter guess x)
+  (sqrt-iter2 guess x (* 2 guess)))
+(define (sqrt-iter2 guess x prev)
+  (if (good-enough?-change guess x prev)
+    guess
+    (sqrt-iter2 (improve guess x) x guess)))
+(define (improve guess x)
+  (average guess (/ x guess)))
+(define (average x y)
+  (/ (+ x y) 2))
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.01))
+(define (good-enough?-change guess x prev)
+  (< (/ (abs (- guess prev)) guess) 1e-8))
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+(define (test-sqrt x)
+  (define result
+    (sqrt x))
+  (display (format "x = ~a\n" x))
+  (display (format "result: ~a\n" x))
+  (display (format "diff: ~a\n" (-(square result)
+                                  x))))
+(test-sqrt 2)
+(test-sqrt 1)
+(test-sqrt 0.001)
+(test-sqrt 0.0001)
+(test-sqrt 0.00001)
+(test-sqrt 0.000001)
+(test-sqrt 0.0000001)
+(test-sqrt 0.00000001)
+
+
 
 
