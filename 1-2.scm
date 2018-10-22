@@ -120,6 +120,8 @@
 (count-change 200)
 
 ;; Example 1.12
+
+;; version 1
 (require racket/trace)
 (define (triangle-vals vals idx)
   (cond ((= idx 0)
@@ -129,8 +131,7 @@
         (else
           (append 
             (list (+ (car vals) (car (cdr vals))))
-            (triangle-vals(cdr vals) (+ idx 1))))))
-(trace triangle-vals)
+            (triangle-vals (cdr vals) (+ idx 1))))))
 (define (triangle-vals-iter vals n k)
   (if (= k n)
     vals
@@ -142,6 +143,15 @@
     (print-triangle-iter n (+ k 1))))
 (define (pascal-triangle n)
   (print-triangle-iter n 0))
-(pascal-triangle 15)
+(pascal-triangle 3)
 
+;; version 2
+(define (pt column row)
+  (cond ((= column 0) 1)
+        ((= row column) 1)
+        (else 
+          (+ (pt (- column 1) (- row 1)) (pt column (- row 1))))))
+(display (format "~a" (pt 0 0)))
+(display (format "~a ~a" (pt 0 1) (pt 1 1)))
+(display (format "~a ~a ~a" (pt 0 2) (pt 1 2) (pt 2 2)))
 
