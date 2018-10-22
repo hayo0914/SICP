@@ -235,6 +235,10 @@
 ;; This discipline is called "Lexical Scoping".
 ;; 補足) 自由変数とは関数の中で参照される局所変数や引数以外の変数を意味する。
 
+(define (average x y)
+  (/ (+ x y) 2))
+(define (square x)
+  (* x x))
 (define (sqrt x)
   (define (good-enough? guess)
     (< (abs (- (square guess) x)) 0.001))
@@ -257,4 +261,5 @@
 ;; various type of procedures.
 ;; Only after we have developed such a skill can we learn to reliably
 ;; construct programs that exhibit the desired behaviour.
+
 
