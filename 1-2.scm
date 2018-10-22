@@ -119,4 +119,29 @@
         ((= kinds-of-coins 6) 500)))
 (count-change 200)
 
-         
+;; Example 1.12
+(require racket/trace)
+(define (triangle-vals vals idx)
+  (cond ((= idx 0)
+         (append (list (car vals)) (triangle-vals vals (+ idx 1))))
+        ((= (length vals) 1)
+         (list (car vals)))
+        (else
+          (append 
+            (list (+ (car vals) (car (cdr vals))))
+            (triangle-vals(cdr vals) (+ idx 1))))))
+(trace triangle-vals)
+(define (triangle-vals-iter vals n k)
+  (if (= k n)
+    vals
+    (triangle-vals-iter (triangle-vals vals 0) n (+ k 1))))
+(define (print-triangle-iter n k)
+  (display (format "~a~n" (triangle-vals-iter '(1) k 0)))
+  (if (= k n)
+    (display "")
+    (print-triangle-iter n (+ k 1))))
+(define (pascal-triangle n)
+  (print-triangle-iter n 0))
+(pascal-triangle 15)
+
+
