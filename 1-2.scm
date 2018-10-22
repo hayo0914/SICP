@@ -8,3 +8,115 @@
 ;; Only after we have developed such a skill can we learn to reliably
 ;; construct programs that exhibit the desired behaviour.
 
+;; 1.2.1
+;; - recursive process(再帰プロセス)
+;; - iterative process(反復プロセス)
+;; 再帰と反復の違い
+;; 反復プロセスが再帰手続きにより記述されていても定量的な記憶域にて実行される.
+;; この実装はtail-recursive(末尾再帰)と呼ばれる.
+;; 
+;; [末尾再帰(wiki)]
+;; 自身の再帰呼び出しが、その計算における最後のステップになっているような
+;; 再帰のパターンのことである.
+;; 呼び出しではなく、戻り先を保存しないジャンプに最適化できるという特徴がある(末尾呼出最適化)
+
+(require racket/trace)
+(define (factorial n)
+  (if (= n 1)
+    1
+    (* n (factorial (- n 1)))))
+(trace factorial)
+(factorial 5)
+
+;; Result
+;; >(factorial 5)
+;; > (factorial 4)
+;; > >(factorial 3)
+;; > > (factorial 2)
+;; > > >(factorial 1)
+;; < < <1
+;; < < 2
+;; < <6
+;; < 24
+;; <120
+;; 120
+
+
+(require racket/trace)
+(define (factorial n)
+  (fact-iter 1 1 n))
+(define (fact-iter product counter max-count)
+  (if (> counter max-count)
+    product
+    (fact-iter (* counter product)
+               (+ counter 1)
+               max-count)))
+(trace factorial)
+(factorial 5)
+
+;; Result
+;; >(factorial 5)
+;; <120
+;; 120
+
+;; Excercise 1.9
+
+(require racket/trace)
+(define (+ a b)
+  (if (= a 0) b (inc (+ (dec a) b))))
+(trace +)
+(+ 3 3)
+;; -> recursive process
+
+(require racket/trace)
+(define (+ a b)
+  (if (= a 0) b (+ (dec a) (inc b))))
+(trace +)
+(+ 3 3)
+;; -> iterative process
+
+;; 1.2.2 tree recursion
+
+;; Tree recursion Example
+;; But it does so much redundunt computation
+;; The process uses a number of steps that grows exponentially with the input.
+(require racket/trace)
+(define (fib n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fib (- n 1))
+                 (fib (- n 2))))))
+(trace fib)
+(fib 5)
+
+;; Iterative Example
+(require racket/trace)
+(define (fib n)
+  (fib-iter 1 0 n))
+(define (fib-iter a b count)
+  (if (= count 0)
+    b
+    (fib-iter (+ a b) a (- count 1))))
+(trace fib)
+(fib 5)
+
+;; 両替パターンを数えるアルゴリズム
+(define (count-change amount) (cc amount 6))
+(define (cc amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc amount
+                     (- kinds-of-coins 1))
+                 (cc (- amount
+                        (first-denomination kinds-of-coins))
+                     kinds-of-coins)))))
+(define (first-denomination kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1)
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 50)
+        ((= kinds-of-coins 5) 100)
+        ((= kinds-of-coins 6) 500)))
+(count-change 200)
+
+         
