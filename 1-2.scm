@@ -179,3 +179,52 @@
 (display (format "~a ~a" (pt 0 1) (pt 1 1)))
 (display (format "~a ~a ~a" (pt 0 2) (pt 1 2) (pt 2 2)))
 
+;; 1.2.3 増加のオーダー
+;; - order of growth
+;; It's useful for explaining the difference of the amount
+;; of resources that the processes consume.
+;; 補足)プロセスが消費するリソース(資源)の相対的量を得るための記法
+
+;; 1.2.4 指数計算
+
+;; Recursive Process
+;; order(n), memory(n)
+(define (expt b n)
+  (if (= n 0)
+    1
+    (* b (expt b (- n 1)))))
+(expt 2 3)
+
+;; Iterative Process
+;; order(n), memory(1)
+(define (expt b n)
+  (expt-iter b n 1))
+(define (expt-iter b counter product)
+  (if (= counter 0)
+    product
+    (expt-iter b
+               (- counter 1)
+               (* b product))))
+(expt 2 3)
+
+;; Improved Version
+;; order(log n) = 対数ステップ数のアルゴリズム
+(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))
+(expt 2 3)
+
+;; 1.2.5 最大公約数(Greatest Common divisor)(GCD)
+;; Euclid's Algorithm(ユークリッドの互除法)
+
+; 下記は反復プロセスを生成し, ステップ数は与えられた数値の対数で増加する
+(define (gcd a b)
+  (if (= b 0)
+    a
+    (gcd b (remainder a b))))
+(gcd 16 24)
+
+;; 1.2.6 素数判定
+(define (smallest-devisor n) (find-divisor n 2))
+(define (find
