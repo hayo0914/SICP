@@ -68,7 +68,7 @@
 ;;
 ;; 
 
-;; Excercise 1.3
+;; Exercise 1.3
 (define (test x y z)
   (cond ((and (>= x z) (>= y z)) (+ x y))
         ((and (>= x y) (>= z y)) (+ x z))
@@ -81,7 +81,7 @@
 (test 3 5 3)
 (test 3 3 5)
 
-;; Excercise 0.5
+;; Exercise 0.5
 (define (p) (p))
 (define (test x y)
   (if (= x 0) 0 y))
@@ -117,7 +117,7 @@
 (test-sqrt 0.00000001)
 
 
-;; Excercise 1.6
+;; Exercise 1.6
 ; this does not work
 (define (square x)
   (* x x))
@@ -135,7 +135,7 @@
     ((print x)(sqrt-iter (improve guess x) x))))
 (sqrt 9)
 
-;; Excercise 1.7
+;; Exercise 1.7
 (define (square x)
   (* x x))
 (define (sqrt-iter guess x)
@@ -170,7 +170,7 @@
 (test-sqrt 0.0000001)
 (test-sqrt 0.00000001)
 
-;; Excercise 1.8 (Using Newton Method)
+;; Exercise 1.8 (Using Newton Method)
 (define (square x)
   (* x x))
 (define (cube x)

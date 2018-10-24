@@ -59,7 +59,7 @@
 ;; <120
 ;; 120
 
-;; Excercise 1.9
+;; Exercise 1.9
 
 (require racket/trace)
 (define (+ a b)
@@ -119,7 +119,7 @@
         ((= kinds-of-coins 6) 500)))
 (count-change 200)
 
-;; Excercise 1.11
+;; Exercise 1.11
 
 ;; recursive process
 (define (f n)
@@ -143,7 +143,7 @@
 (trace f)
 (f 20)
 
-;; Excercise 1.12
+;; Exercise 1.12
 
 ;; version 1
 (require racket/trace)
@@ -370,4 +370,47 @@
 ; 法 m に関する剰余を得ます。 このテクニックはとても役に立ちます。
 ; m よりもはるかに大きな数値を一切扱う必要無 しに演算を行うことが可能だからです。
 
+;; Exercise 1.21
+(define (square n) (* n n))
+(define (smallest-devisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b) (= (remainder b a) 0))
+(smallest-devisor 199)
+(smallest-devisor 1999)
+(smallest-devisor 19999)
 
+;; Exercise 1.22
+
+(define (timed-prime-test n)
+  (newline) (display n) (start-prime-test n (runtime)))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+    (report-prime (- (runtime) start-time))))
+(define (report-prime elapsed-time)
+  (display " *** ") (display elapsed-time))
+(define (square n) (* n n))
+(define (smallest-devisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b) (= (remainder b a) 0))
+(define (prime? n)
+  (= n (smallest-devisor n)))
+(define (search-for-primes start end)
+  (cond ((> start end) (newline) (display 'finished))
+        ((= start 2)
+         (timed-prime-test start)
+         (search-for-primes 3 end))
+        (else
+         (timed-prime-test start)
+         (search-for-primes (+ start 1) end))))
+
+(search-for-primes 1000 1020)
+
+(search-for-primes 10000 10040)
+
+(search-for-primes 100000 100050)
