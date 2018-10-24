@@ -205,15 +205,16 @@
     (expt-iter b
                (- counter 1)
                (* b product))))
-(expt 2 3)
+(expt 2 8)
 
 ;; Improved Version
 ;; order(log n) = 対数ステップ数のアルゴリズム
+(define (square n) (* n n))
 (define (fast-expt b n)
   (cond ((= n 0) 1)
         ((even? n) (square (fast-expt b (/ n 2))))
         (else (* b (fast-expt b (- n 1))))))
-(expt 2 3)
+(fast-expt 2 8)
 
 ;; 1.2.5 最大公約数(Greatest Common divisor)(GCD)
 ;; Euclid's Algorithm(ユークリッドの互除法)
@@ -226,5 +227,147 @@
 (gcd 16 24)
 
 ;; 1.2.6 素数判定
+
+;; find-divisorの終了条件は, もしnが素数でないならば√nより小さいか
+;; または等しい約数を持つという事実に基づく
+;; このアルゴリズムでは1から√nまでの約数についてのみテストすれば良い
+;; 結果として, nが素数であるかを判定するのに必要なステップ数の
+;; 増加のオーダーはΘ(√n)となる.
+(define (square n) (* n n))
 (define (smallest-devisor n) (find-divisor n 2))
-(define (find
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b) (= (remainder b a) 0))
+(define (prime? n)
+  (= n (smallest-devisor n)))
+(prime? 4294967087)
+
+(prime? 3)
+; (prime? 3)
+; (= 3 (smallest-devisor 3)
+; (= 3 (find-divisor 3 2))
+; (= 3 (cond ((> (square 2) 3) 3)
+;            ((divides? 2 3) 2)
+;            (else (find-divisor 3 (+ 2 1)))))
+; (= 3 (cond ((> 4 3) 3)
+;            ((divides? 2 3) 2)
+;            (else (find-divisor 3 (+ 2 1)))))
+; (= 3 3)
+; true
+(prime? 5)
+; (prime? 3)
+; (= 5 (smallest-devisor 5)
+; (= 5 (find-divisor 5 2))
+; (= 5 (cond ((> (square 2) 5) 5)
+;            ((divides? 2 5) 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond ((> 4 5) 5)
+;            ((divides? 2 5) 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond (false 5)
+;            ((divides? 2 5) 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond (false 5)
+;            ((= (remainder 5 2) 0) 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond (false 5)
+;            ((= 1 0) 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else (find-divisor 5 (+ 2 1)))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else (find-divisor 5 3))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else (cond ((> (square 3) 5) 5)
+;                        ((divides? test-divisor 5) 3)
+;                        (else (find-divisor 5 (+ 3 1))))))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else (cond ((> 9 5) 5)
+;                        ((divides? test-divisor 5) 3)
+;                        (else (find-divisor 5 (+ 3 1))))))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else (cond (true 5)
+;                        ((divides? test-divisor 5) 3)
+;                        (else (find-divisor 5 (+ 3 1))))))))
+; (= 5 (cond (false 5)
+;            (false 2)
+;            (else 5)
+; (= 5 5)
+; true 
+(prime? 6)
+; (prime? 6)
+; (= 6 (smallest-devisor 6)
+; (= 6 (find-divisor 6 2))
+; (= 6 (cond ((> (square 2) 6) 6)
+;            ((divides? 2 6) 2)
+;            (else (find-divisor 6 (+ 2 1)))))
+; (= 6 (cond ((> (square 2) 6) 6)
+;            ((divides? 2 6) 2)
+;            (else (find-divisor 6 (+ 2 1)))))
+; (= 6 (cond ((> 4 6) 6)
+;            ((divides? 2 6) 2)
+;            (else (find-divisor 6 (+ 2 1)))))
+; (= 6 (cond ((> 4 6) 6)
+;            ((= (remainder 6 2) 0) 2)
+;            (else (find-divisor 6 (+ 2 1)))))
+; (= 6 (cond ((> 4 6) 6)
+;            ((= 0 0) 2)
+;            (else (find-divisor 6 (+ 2 1)))))
+; (= 6 2)
+; false
+
+;; フェルマーテスト
+;; Θ(log n)の素数判定はフェルマーの小定理に基づく
+;; 
+;; Fermat's Little Theorem(フェルマーの少定理):
+;; nが素数かつaがnより小さい任意の正の整数であるとき,
+;; aのn乗は法nに関してaと合同である.
+;; 
+;; 2つの数値の両方をnで割った時に同じ余りを持つ場合, "法nに関して合同"と呼ぶ
+;; 英語ではcongruent modulo nと呼ぶ
+;; aをnで除算したときの剰余をremainder of a modulo nと言う
+;; 簡潔には, a modulo nと言う.
+
+(require racket/trace)
+(define (square n) (* n n))
+(define (expmod base exp m)
+  (cond ((= exp 0)
+         1)
+        ((even? exp)
+         (remainder
+           (square
+             (expmod base (/ exp 2) m))
+           m))
+        (else
+          (remainder
+            (* base
+               (expmod base (- exp 1) m))
+            m))))
+(define (fermat-test n)
+  (define (try-it a)
+    (display (format "a: ~a\n" a))
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+(trace expmod)
+(fast-prime? 9 1)
+
+; 指数 e が 1 より大きい場合の縮小ステップは、任意の整数 x, y, m に対し
+; x modulo m と y modulo m を別々に求め、これらを掛け、
+; その結果の法 m に関する剰余を求める ことで (x と y の積 modulo m) を
+; 求めることができるという事実に基づきます。
+; 例えば e が偶数の場合に be/2 modulo m を求め、その二乗を取り、
+; 法 m に関する剰余を得ます。 このテクニックはとても役に立ちます。
+; m よりもはるかに大きな数値を一切扱う必要無 しに演算を行うことが可能だからです。
+
+
