@@ -360,15 +360,18 @@
         ((fermat-test n) (fast-prime? n (- times 1)))
         (else false)))
 (trace expmod)
-(fast-prime? 9 1)
+(fast-prime? 5 1)
 
 ; 指数 e が 1 より大きい場合の縮小ステップは、任意の整数 x, y, m に対し
 ; x modulo m と y modulo m を別々に求め、これらを掛け、
 ; その結果の法 m に関する剰余を求める ことで (x と y の積 modulo m) を
 ; 求めることができるという事実に基づきます。
-; 例えば e が偶数の場合に be/2 modulo m を求め、その二乗を取り、
+; 例えば e が偶数の場合に b^(e/2) modulo m を求め、その二乗を取り、
 ; 法 m に関する剰余を得ます。 このテクニックはとても役に立ちます。
 ; m よりもはるかに大きな数値を一切扱う必要無 しに演算を行うことが可能だからです。
+
+;; 例) mod(3^4, 5) = mod(mod(3^3, 5)*3, 5) = 1
+;; 例) mod(3^4, 5) = mod(mod(3^2, 5)^2, 5) = 1
 
 ;; Exercise 1.21
 (define (square n) (* n n))
@@ -402,15 +405,59 @@
   (= n (smallest-devisor n)))
 (define (search-for-primes start end)
   (cond ((> start end) (newline) (display 'finished))
-        ((= start 2)
-         (timed-prime-test start)
-         (search-for-primes 3 end))
+        ((< start 2) (search-for-primes 2 end))
         (else
          (timed-prime-test start)
-         (search-for-primes (+ start 1) end))))
+         (search-for-primes (+ start (if (even? start) 1 2)) end))))
 
-(search-for-primes 1000 1020)
+(search-for-primes 1000 1030)
 
 (search-for-primes 10000 10040)
 
 (search-for-primes 100000 100050)
+
+(search-for-primes 100000 100150)
+
+;; Exercise 1.23
+
+(define (timed-prime-test n)
+  (newline) (display n) (start-prime-test n (runtime)))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+    (report-prime (- (runtime) start-time))))
+(define (report-prime elapsed-time)
+  (display " *** ") (display elapsed-time))
+(define (square n) (* n n))
+(define (smallest-devisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (next test-divisor)))))
+(define (next n)
+  (if (= n 2) 3 (+ n 2)))
+(define (divides? a b) (= (remainder b a) 0))
+(define (prime? n)
+  (= n (smallest-devisor n)))
+(define (search-for-primes start end)
+  (cond ((> start end) (newline) (display 'finished))
+        ((< start 2) (search-for-primes 2 end))
+        (else
+         (timed-prime-test start)
+         (search-for-primes (+ start (if (even? start) 1 2)) end))))
+
+(timed-prime-test 1009)
+(timed-prime-test 1013)
+(timed-prime-test 1019)
+(timed-prime-test 1021)
+(timed-prime-test 10007)
+(timed-prime-test 10009)
+(timed-prime-test 10037)
+(timed-prime-test 10039)
+(timed-prime-test 100069)
+(timed-prime-test 100103)
+(timed-prime-test 100109)
+(timed-prime-test 100129)
+
+
+
+
