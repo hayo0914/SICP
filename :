@@ -630,16 +630,19 @@
 
 (define (square n) (* n n))
 (define (expmod base exp m)
-  (define (square-check x)
-    (if (and (not (or (= x 1) (= x (- m 1))))
-             (= (remainder (square x) m) 1))
-      0
-      (remainder (square x) m))))
+  (define (check-nontrivial-sqrt-1 x)
+    (cond ((= x 1) 1)
+          ((= x (- m 1)) 1)
+          (else
+            (let ((r (remainder (square x) m)))
+              (if (= r 1)
+                0
+                r)))))
   (cond ((= exp 0)
          1)
         ((even? exp)
-         (square-check
-           (expmod base (/ exp 2) m)))
+         (check-nontrivial-sqrt-1
+             (expmod base (/ exp 2) m)))
         (else
           (remainder
             (* base
@@ -654,16 +657,12 @@
         ((miller-rabin-test n) (fast-prime? n (- times 1)))
         (else false)))
 (fast-prime? 21 10)
-(fast-prime? 561 10)
-(fast-prime? 1105 10)
-(fast-prime? 1729 10)
-(fast-prime? 2465 10)
-(fast-prime? 2821 10)
-(fast-prime? 6601 10)
-(fast-prime? 10 10)
-(fast-prime? 1009 10)
-(fast-prime? 1000003 10)
-(fast-prime? 1000000009 10)
+(fast-prime? 561)
+(fast-prime? 1105)
+(fast-prime? 1729)
+(fast-prime? 2465)
+(fast-prime? 2821)
+(fast-prime? 6601)
 
 
 
