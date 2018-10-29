@@ -115,3 +115,88 @@
           3)))
 (sr cube 0 1 100)
 
+;; Exercise 1.31
+
+; a)
+(define (product term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (* result (term a)))))
+  (iter a 1))
+(define (factorial x)
+  (define (inc a) (+ a 1))
+  (define (term a) a)
+  (product term 2 inc x))
+(factorial 5)
+
+; Calc approximations to Pi
+(define (product term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (* result (term a)))))
+  (iter a 1))
+(define (calc-pi x)
+  (define (inc a) (+ a 1))
+  (define (square a) (* a a))
+  (define (term a)
+    (let ((numer (* 2 a)))
+      (/ (* numer (+ 2 numer))
+         (square (+ numer 1)))))
+  (* (product term 1 inc x) 4.0))
+(calc-pi 1000)
+
+; b)
+(define (product term a next b)
+  (if (> a b)
+    1
+    (* (term a) (product term (next a) next b))))
+(define (calc-pi x)
+  (define (inc a) (+ a 1))
+  (define (square a) (* a a))
+  (define (term a)
+    (let ((numer (* 2 a)))
+      (/ (* numer (+ 2 numer))
+         (square (+ numer 1)))))
+  (* (product term 1 inc x) 4.0))
+(calc-pi 1000)
+
+;; Exercise 1.32
+
+; a)
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+(define (sum term a next b)
+  (accumulate + 0 term a next b))
+(define (identity a) a)
+(define (inc a) (+ 1 a))
+(define (f b)
+  (sum identity 0 inc b))
+(f 10)
+
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+(define (product term a next b)
+  (accumulate * 1 term a next b))
+(define (calc-pi x)
+  (define (inc a) (+ a 1))
+  (define (square a) (* a a))
+  (define (term a)
+    (let ((numer (* 2 a)))
+      (/ (* numer (+ 2 numer))
+         (square (+ numer 1)))))
+  (* (product term 1 inc x) 4.0))
+(calc-pi 1000)
+
+;; Exercise 1.33
+
+
