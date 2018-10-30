@@ -198,5 +198,56 @@
 (calc-pi 1000)
 
 ;; Exercise 1.33
+; I don't do this for saving time.
+
+;; 1.3.2 Using Lambda
+
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+(define (sum term a next b)
+  (accumulate + 0 term a next b))
+(define (pi-sum a b)
+  (sum (lambda (x) (/ 1.0 (* x (+ x 2))))
+       a
+       (lambda (x) (+ x 4))
+       b))
+(* (pi-sum 1 1000) 8)
+(define (integral f a b dx)
+  (* (sum f
+          (+ a (/ dx 2.0))
+          (lambda (x) (+ x dx))
+          b)
+     dx))
+
+; 定積分 ∫ 3*x^2 = [1/3*3*x^3]3,1 = 3^3 - 1^3 = 27 - 1 = 26
+; 定積分 ∫ 3*x^2 = [1/3*3*x^3]5,4 = 5^3 - 4^3 = 125 - 64 = 61
+(define (cube2 a)
+  (* 3 (* a a)))
+(integral cube2 4 5 0.001)
+
+; 無名手続きの呼び出し
+(define (f x y)
+  ((lambda (a b)
+     (+ (* x (square a))
+        (* y b)
+        (* a b)))
+   (+ 1 (* x y)) ; a
+   (- 1 y)))     ; b
+(f 3 2)
+
+;; Exercise 1.34
+(define (f g) (g 2))
+(define (square a) (* a a))
+(f square)
+(f (lambda (z) (* z (+ z 1))))
+(f f)
+; application: not a procedure;
+;  expected a procedure that can be applied to arguments
+;   given: 2
+; [,bt for context]
 
 
