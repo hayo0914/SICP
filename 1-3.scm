@@ -370,7 +370,7 @@
 ; step(34): 4.555532270803653
 ; 4.555532270803653
 
-;; Not Average Damping
+;; Average Damping
 (define (fixed-point f first-guess)
   (define (close-enough? v1 v2)
     (< (abs (- v1 v2)) tolerance))
@@ -473,7 +473,106 @@ e
 (tan 4.5)
 
 ;; 1.3.4
+;; Average Dumping(平均減衰)
+;; 関数f(x)の値がxとf(x)の平均だと考える
 
+(define (average x y) (/ (+ x y) 2))
+(define (average-damp f) (lambda (x) (average x (f x))))
+(define (square a) (* a a))
+((average-damp square) 10)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define (sqrt x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 1.0))
+(sqrt 10000)
+
+;; Newton's Method (ニュートン法)
+;; Derivative (微分)
+;; We can express the idea of derivative as the procedure.
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define dx 0.00001)
+;; Derivative for x^3
+;; = 3 * x^2
+(define (cube x) (* x x x))
+((deriv cube) 5)
+
+;; We can express Newton's Method as a fixed-point process.
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define (newton-transform g)
+  (lambda (x) (- x (/ (g x) ((deriv g) x)))))
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+(define (sqrt x)
+  ;; We can use Newton's method to find a zero of function
+  ;; y^2 - x
+  (newtons-method
+    (lambda (y) (- (square y) x)) 1.0))
+(sqrt 9)
+
+;; Abstraction and first-class procedures
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define (fixed-point-of-transform g transform guess)
+  (fixed-point (transform g) guess))
+
+;; Using Average Damp
+(define (sqrt x)
+  (fixed-point-of-transform
+    (lambda (y) (/ x y)) average-damp 1.0))
+(define (average-damp f) (lambda (x) (average x (f x))))
+(square (sqrt 25))
+
+;; Using Newton's Method
+(define (sqrt x)
+  (fixed-point-of-transform
+    (lambda (y) (- (square y) x)) newton-transform 1.0))
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define dx 0.00001)
+(define (newton-transform g)
+  (lambda (x) (- x (/ (g x) ((deriv g) x)))))
+(square (sqrt 25))
+
+;; In general, programming languages impose restrictions 
+;; on the ways in which computational elements can be manipulated. 
+;; Elements with the fewest restrictions are said 
+;; to have "first-class" status.
+;; - They may be named by variables.
+;; - They may be passed as arguments to procedures.
+;; - They may be returned as the results of procedures.
+;; - They may be included in data structures.
+
+;; Exercise 1.40
 
 
 
