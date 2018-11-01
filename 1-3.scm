@@ -645,5 +645,15 @@ e
 (define (square x) (* x x))
 ((repeated square 2) 5)
 
+;; Exercise 1.44
+(define dx 0.00001)
+(define (smooth f)
+  (lambda (x)
+    (display x)(newline)
+    (/ (+ (f (- x dx)) (f x) (f (+ x dx)))
+       3)))
+(define (n-fold-smooth f n) 
+  (repeated smooth n) f)
+((n-fold-smooth square 12) 2)
 
 
