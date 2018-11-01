@@ -710,6 +710,7 @@ e
 (define (compose f g)
   (lambda (x)
     (f (g x))))
+
 ; fixed-point
 (define tolerance 0.00001)
 (define (fixed-point f first-guess)
