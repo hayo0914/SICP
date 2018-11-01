@@ -656,4 +656,114 @@ e
   (repeated smooth n) f)
 ((n-fold-smooth square 12) 2)
 
+;; Exercise 1.45
+
+;; Finding cube roots
+;; y = x / y^2
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define (sqrt x)
+  (fixed-point
+    (average-damp
+      (lambda (y) (/ x (* y y))))
+    1.0))
+(define (average-damp f) (lambda (x) (average x (f x))))
+(define (average x y) (/ (+ x y) 2))
+(sqrt 10)
+
+;; Finding fourth roots
+;; y = x / y^3
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define (sqrt x)
+  (fixed-point
+    (average-damp (average-damp ;; double average-damp enable conversion
+      (lambda (y) (/ x (* y y y)))))
+    1.0))
+(define (average-damp f) (lambda (x) (average x (f x))))
+(define (average x y) (/ (+ x y) 2))
+(sqrt 10)
+
+;; Finding fifth roots
+;; y = x / y^4 (define (repeated f n) (if (= n 0)
+(define (repeated f n)
+  (if (= n 0)
+    (lambda (x) x)
+    (compose (repeated f (- n 1))
+             f)))
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+; fixed-point
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+
+(define (pow b p)
+  (define (square x) (* x x))
+  (define (iter res a n)
+    (if (= n 0)
+      res 
+      (if (even? n)
+        (iter res (square a) (/ n 2))
+        (iter (* res a) a (- n 1)))))
+  (iter 1 b p))
+
+(define (nth-root x n)
+  (cond ((= n 0) 1)
+        ((= n 1) x)
+        (else
+          (fixed-point
+            ((repeated
+               average-damp
+               (floor (log2x n)))
+             (lambda (y)
+               (/ x 
+                  (pow y (- n 1)))))
+            1.0))))
+(define (average-damp f) (lambda (x) (average x (f x))))
+(define (average x y) (/ (+ x y) 2))
+(define (log2x x) (/ (log x) (log 2)))
+
+(nth-root 10 2)
+(nth-root 10 3)
+(nth-root 10 4)
+(nth-root 10 5)
+(nth-root 10 6)
+(nth-root 10 7)
+(nth-root 10 8)
+(nth-root 10 9)
+(nth-root 10 10)
+(nth-root 10 11)
+(nth-root 10 12)
+(nth-root 10 13)
+(nth-root 10 14)
+(nth-root 10 15)
+(nth-root 10 16)
+(nth-root 10 50)
+(nth-root 5 32)
+
 
