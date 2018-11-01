@@ -495,7 +495,11 @@ e
 (sqrt 10000)
 
 ;; Newton's Method (ニュートン法)
-;; Derivative (微分)
+;; The answer for g(x) = 0 is the fixed point of follwoing.
+;;
+;;   f(x) = x - (g(x)/Dg(x))
+;;
+;; Dg(x) is Derivative(微分) of g(x).
 ;; We can express the idea of derivative as the procedure.
 (define (deriv g)
   (lambda (x)
@@ -573,7 +577,51 @@ e
 ;; - They may be included in data structures.
 
 ;; Exercise 1.40
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define dx 0.00001)
+(define (newton-transform g)
+  (lambda (x) (- x (/ (g x) ((deriv g) x)))))
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess step)
+    (let ((next (f guess)))
+      (display (format "step(~a): ~a\n" step next))
+      (if (close-enough? guess next)
+        next
+        (try next (+ 1 step)))))
+  (try first-guess 1))
+(define tolerance 0.00001)
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+(define (cubic a b c)
+  (define (cube a) (* a a a))
+  (define (square a) (* a a))
+  (lambda (x)
+    (+ (cube x) (* a (square x)) (* b x) c)))
 
+;; Resolve x^3 + a*x^2 + b*x + c = 0 using Newton's Method
+(newtons-method (cubic 1 2 3) 1)
+
+;; Confirm the result
+(let ((a 1) (b 2) (c 3))
+  (define x (newtons-method (cubic a b c) 1))
+  (display (format "answer: ~a\n" x))
+  (display (format "diff: ~a\n" (+ (cube x) (* a (square x)) (* b x) c))))
+
+;; Exercise 1.41
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+(((double (double double)) inc) 1)
+;; 17
+
+;; Exercise 1.42
+
+  
 
 
 
