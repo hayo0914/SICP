@@ -400,7 +400,79 @@
 ; 4.555537551999825
 
 ;; Exercise 1.37
+;; continued-fraction(連分数)
 
+;; Iterative Process
+(define (cont-frac n d k)
+  (define (iter result i)
+    (if (= i 0)
+      result
+      (iter (/ (n i) (+ (d i) result))
+            (- i 1))))
+  (iter (/ (n k) (d k))
+        (- k 1)))
+;; Calculating Golden Ratio
+(/ 1 (cont-frac (lambda (i) 1.0)
+                (lambda (i) 1.0)
+                10))
+
+;; Next version (Recursive Process)
+(define (cont-frac n d k)
+  (define (f i)
+    (if (= i k)
+      (/ (n i) (n k))
+      (/ (n i) (+ (d i) (f (+ i 1))))))
+  (f 1))
+;; Calculating Golden Ratio
+(/ 1 (cont-frac (lambda (i) 1.0)
+                (lambda (i) 1.0)
+                10))
+
+;; Exercise 1.38
+
+;; Iterative Process
+(define (cont-frac n d k)
+  (define (iter result i)
+    (if (= i 0)
+      result
+      (iter (/ (n i) (+ (d i) result))
+            (- i 1))))
+  (iter (/ (n k) (d k))
+        (- k 1)))
+;; Calculating e (Napier's Constant)
+(define e
+  (+ 2 (cont-frac (lambda (i) 1.0) 
+                  (lambda (i)
+                    (if (not (= 0 (remainder (+ i 1) 3)))
+                      1
+                      (* 2 (/ (+ i 1) 3))))
+                  10)))
+e
+
+;; Exercise 1.39
+(define (cont-frac n d k)
+  (define (iter result i)
+    (if (= i 0)
+      result
+      (iter (/ (n i) (+ (d i) result))
+            (- i 1))))
+  (iter (/ (n k) (d k))
+        (- k 1)))
+(define (tan-cf x k)
+  (cont-frac
+    (lambda (i)
+      (if (= i 1)
+        x
+        (- (* x x))))
+    (lambda (i)
+      (if (= i 1)
+        1
+        (+ 1 (* (- i 1) 2))))
+    10))
+(tan-cf 4.5 10)
+(tan 4.5)
+
+;; 1.3.4
 
 
 
