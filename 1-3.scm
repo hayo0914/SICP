@@ -620,8 +620,30 @@ e
 ;; 17
 
 ;; Exercise 1.42
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+((compose square inc) 6)
 
-  
+;; Exercise 1.43
+(define (repeated f n)
+  (lambda (x)
+    (define (iter i result)
+      (if (= i n)
+        result
+        (iter (+ i 1) (f result))))
+    (iter 1 (f x))))
+(define (square x) (* x x))
+((repeated square 2) 5)
+
+; Using compose
+(define (repeated f n)
+  (if (= n 0)
+    (lambda (x) x)
+    (compose (repeated f (- n 1))
+             f)))
+(define (square x) (* x x))
+((repeated square 2) 5)
 
 
 
