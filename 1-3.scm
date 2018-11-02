@@ -767,4 +767,45 @@ e
 (nth-root 10 50)
 (nth-root 5 32)
 
+;; Exercise 1.46
+;; Iterative improvement(反復改善法)
+(define (iterative-improve good-enough? improve)
+  (lambda (guess)
+    (define (try guess)
+      (if (good-enough? guess)
+        guess
+        (try (improve guess))))
+    (try guess)))
+
+;; Rewrite sqrt
+(define (sqrt x)
+  (define (square x) (* x x))
+  ((iterative-improve 
+     (lambda (guess)
+       (< (abs (- (square guess) x)) 1e-8))
+     (lambda (guess)
+       (average guess (/ x guess))))
+   1.0))
+(define (average x y) (/ (+ x y) 2))
+(sqrt 342)
+
+;; Rewrite fixed-point
+(define (fixed-point f first-guess)
+  (define tolerance 0.00001)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  ((iterative-improve
+     (lambda (guess)
+       (close-enough? guess (f guess)))
+     (lambda (guess) (f guess)))
+   1.0))
+(define (sqrt x)
+  (fixed-point
+    (average-damp
+      (lambda (y) (/ x (* y))))
+    1.0))
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+(sqrt 342)
+
 
