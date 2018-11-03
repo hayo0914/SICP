@@ -145,3 +145,41 @@
 (print-rat
   (mul-rat (make-rat 1 -2) (make-rat 2 3)))
 
+; 2.1.2 Abstraction Barriers
+
+; Exercise 2.2
+(define (make-point x y)
+  (cons x y))
+(define (x-point p)
+  (car p))
+(define (y-point p)
+  (cdr p))
+(define (make-segment start end)
+  (cons start end))
+(define (start-segment s)
+  (car s))
+(define (end-segment s)
+  (cdr s))
+(define (midpoint-segment s)
+  (define (average x y) (/ (+ x y) 2.0))
+  (make-point
+    (average (x-point (start-segment s))
+             (x-point (end-segment s)))
+    (average (y-point (start-segment s))
+             (y-point (end-segment s)))))
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+(print-point 
+  (midpoint-segment
+    (make-segment
+      (make-point 2 3)
+      (make-point 10 24))))
+
+; Exercise 2.3
+; skipped easy problem
+
