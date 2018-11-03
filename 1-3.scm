@@ -808,4 +808,20 @@ e
   (lambda (x) (average x (f x))))
 (sqrt 342)
 
+;; Experiments
+(define (log2x x)
+  (display
+    (format
+      "log ~a = ~a\n" x (log x)))
+  (display
+    (format
+      "log 2 = ~a\n" (log 2)))
+  (display
+    (format
+     "log ~a / log 2 = ~a\n" x (/ (log x) (log 2)))))
+(define (try i k)
+  (log2x i)
+  (if (< i k)
+    (try (+ i 1) k)))
+(try 1 20)
 
