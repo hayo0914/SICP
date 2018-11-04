@@ -264,5 +264,96 @@
 ;
 ; 4
 
+; 2.1.4
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x)
+                    (lower-bound y))
+                 (+ (upper-bound x)
+                    (upper-bound y))))
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+(define (div-interval x y)
+  (mul-interval
+    x
+    (make-interval (/ 1.0 (upper-bound y))
+                   (/ 1.0 (lower-bound y)))))
+
+; Ex 2.7
+(define (make-interval a b) (cons a b))
+(define (lower-bound x) (car x))
+(define (upper-bound x) (cdr x))
+(div-interval (make-interval 10 15)
+              (make-interval 20 30))
+
+; Ex 2.8
+; The minimum value would be the smallest
+; possible value.
+; The maximum value would be the largest
+; possible value.
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x)
+                    (upper-bound y))
+                 (- (upper-bound x)
+                    (lower-bound y))))
+(sub-interval (make-interval 30 55)
+              (make-interval 20 30))
+
+; Ex 2.9
+(define (print-bound x)
+  (display (format "[~a,~a]\n"
+                   (lower-bound x)
+                   (upper-bound x))))
+(define (width-bound x)
+  (/ (- (upper-bound x)
+        (lower-bound x))
+     2.0))
+(define (print-width x)
+  (print-bound x)
+  (display (format "width=~a\n"
+                   (width-bound x))))
+
+(define x (make-interval 10 20))
+(define y (make-interval 5 10))
+
+(print-width x)
+; [10,20]
+; width=5.0
+(print-width y)
+; [5,10]
+; width=2.5
+
+(print-width (add-interval x y))
+; [15,30]
+; width=7.5
+
+(print-width (sub-interval x y))
+; [0,15]
+; width=7.5
+
+; Width for added interval.
+; (xH + yH) - (xL + yL)
+; = (xH - xL) + (yH - yL)
+
+; Width for subbed interval.
+; (xH - yL) - (xL - yH)
+; = (xH - xL) + (yH - yL)
+; it's same as the result of added interval.
+
+(print-width (mul-interval x y))
+; [50,200]
+; width=75.0
+
+; Ex 2.10
+
+
+
+
+            
+
 
 
