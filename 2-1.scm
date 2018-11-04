@@ -183,3 +183,86 @@
 ; Exercise 2.3
 ; skipped easy problem
 
+; 2.1.3 What is meant by data ?
+
+; Exercise 2.4
+(define (cons x y)
+  (lambda (m) (m x y)))
+(define (car z)
+  (z (lambda (p q) p)))
+(define (cdr z)
+  (z (lambda (p q) q)))
+(car (cons 1 2))
+(cdr (cons 1 2))
+
+; Exercise 2.5
+(define (cons x y)
+  (* (expt 2 x) (expt 3 y)))
+(define (devides? a b)
+  (= (remainder a b) 0))
+(define (count-division n divisor)
+  (define (iter z divisions)
+    (if (devides? z divisor)
+      (iter (/ z divisor) (+ divisions 1))
+      divisions))
+  (iter n 0))
+(define (car z)
+  (count-division z 2))
+(define (cdr z)
+  (count-division z 3))
+(car (cons 33 22))
+(cdr (cons 33 22))
+
+; Ex 2.6
+(define zero
+  (lambda (f)
+    (lambda (x) x)))
+(define (add-1 n)
+  (lambda (f)
+    (lambda (x)
+      (f ((n f) x)))))
+(define one
+  (lambda (f)
+    (lambda (x)
+      (f x))))
+(define two
+  (lambda (f)
+    (lambda (x)
+      (f (f x)))))
+(define (inc n) (+ n 1))
+
+((add-1 zero) inc)
+
+(((add-1 zero) inc) 3)
+;
+; ((((lambda (add-1 n)
+;       (lambda (f)
+;         (lambda (x)
+;           (f ((n f) x)))))
+;     zero) inc) 3)
+;
+; ((((lambda (f)
+;       (lambda (x)
+;         (f ((zero f) x))))
+;     inc) 3)
+;
+; (((((lambda (x)
+;        (inc ((zero inc) x))))
+;     3)
+;
+; (((((lambda (x)
+;        (inc ((zero inc) x))))
+;     3)
+;
+; (inc ((zero inc) 3))
+;
+; (inc ((lambda (x) x)) 3))
+;
+; (inc (3))
+;
+; (+ 3 1)
+;
+; 4
+
+
+
