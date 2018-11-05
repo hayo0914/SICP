@@ -498,4 +498,51 @@
                   (make-interval -20 -15)
                   (make-interval -15 -5)))
 
-; ---
+; Ex 2.12
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+(define (make-center-percent c p)
+  (let ((width (* c (/ p 100))))
+    (make-interval
+      (- c width)
+      (+ c width))))
+(define (percent i)
+  (let ((c (center i)))
+    (if (= c 0)
+      (display "Error(center is 0)")
+      (abs (* (/ (width i) c)
+              100.0)))))
+
+; Quick checks
+(print-interval (make-center-percent 35 20))
+(percent (make-center-percent 35 20))
+(percent (make-interval -10 10))
+(percent (make-interval 80 100))
+(percent (make-interval 10 20))
+
+; Ex 2.13
+;
+; Pt(a*b)
+; = ((abH - abL)/2) / center(a*b)
+; = (abH - abL) / (abH + abL)
+; = [a(1 + P1) * b(1 + P2) - a(1 - P1) * b(1 - P2)]
+;   / [a(1 + P1) * b(1 + P2) + a(1 - P1) * b(1 - P2)]
+; = 2ab[P1 + P2] / 2ab[1 + P1P2)
+; = (P1 + P2) / (1 + P1P2)
+; よってP1>0, P2>0かつP1,P2が十分小さい場合,
+; 区間誤差はP1 + P2に近似する.
+
+; 確認
+(percent
+  (mul-interval
+    (make-center-percent 35 8)
+    (make-center-percent 50 5)))
+(/ (+ 0.08 0.05) (+ 1 (* 0.08 0.05)))
+
+
+
+
