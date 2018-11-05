@@ -349,11 +349,153 @@
 ; width=75.0
 
 ; Ex 2.10
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x)
+                    (lower-bound y))
+                 (+ (upper-bound x)
+                    (upper-bound y))))
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x)
+                    (upper-bound y))
+                 (- (upper-bound x)
+                    (lower-bound y))))
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+(define (div-interval x y)
+  (if (>= 0 (* (upper-bound y)
+               (lower-bound y)))
+    "Error(Interval spans 0)"
+    (mul-interval
+      x
+      (make-interval (/ 1.0 (upper-bound y))
+                     (/ 1.0 (lower-bound y))))))
+(define (make-interval a b) (cons a b))
+(define (lower-bound x) (car x))
+(define (upper-bound x) (cdr x))
+(div-interval
+  (make-interval 10 20)
+  (make-interval -10 20))
 
+; Ex 2.11
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x)
+                    (lower-bound y))
+                 (+ (upper-bound x)
+                    (upper-bound y))))
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x)
+                    (upper-bound y))
+                 (- (upper-bound x)
+                    (lower-bound y))))
+(define (mul-interval x y)
+  (let ((xL (lower-bound x))
+        (xH (upper-bound x))
+        (yL (lower-bound y))
+        (yH (upper-bound y)))
+    (cond ((and (<= 0 xL)
+                (<= 0 xH)
+                (> 0 yL)
+                (> 0 yH))
+           ;; ++ * --
+           (make-interval (* xL yL)
+                          (* xH yH)))
+          ((and (<= 0 xL)
+                (<= 0 xH)
+                (> 0 yL)
+                (<= 0 yH))
+           ;; ++ * -+
+           (make-interval (* xL yL)
+                          (* xH yH)))
+          ((and (<= 0 xL)
+                (<= 0 xH)
+                (<= 0 yL)
+                (<= 0 yH))
+           ;; ++ * ++
+           (make-interval (* xL yL)
+                          (* xH yH)))
+          ((and (> 0 xL)
+                (<= 0 xH)
+                (> 0 yL)
+                (> 0 yH))
+           ;; -+ * --
+           (make-interval (* xH yL)
+                          (* xL yL)))
+          ((and (> 0 xL)
+                (<= 0 xH)
+                (> 0 yL)
+                (<= 0 yH))
+           ;; -+ * -+
+           (make-interval
+             (min (* xL yH) (* xH yL))
+             (max (* xH yH) (* xL yL))))
+          ((and (> 0 xL)
+                (<= 0 xH)
+                (<= 0 yL)
+                (<= 0 yH))
+           ;; -+ * ++
+           (make-interval (* xL yH)
+                          (* xH yH)))
+          ((and (> 0 xL)
+                (> 0 xH)
+                (> 0 yL)
+                (> 0 yH))
+           ;; -- * --
+           (make-interval (* xH yH)
+                          (* xL yL)))
+          ((and (> 0 xL)
+                (> 0 xH)
+                (> 0 yL)
+                (> 0 yH))
+           ;; -- * --
+           (make-interval (* xH yH)
+                          (* xL yL)))
+          ((and (> 0 xL)
+                (> 0 xH)
+                (> 0 yL)
+                (<= 0 yH))
+           ;; -- * -+
+           (make-interval (* xL yH)
+                          (* xL yL)))
+          ((and (> 0 xL)
+                (> 0 xH)
+                (<= 0 yL)
+                (<= 0 yH))
+           ;; -- * ++
+           (make-interval (* xL yH)
+                          (* xH yL))))))
+(define (div-interval x y)
+  (if (>= 0 (* (upper-bound y)
+               (lower-bound y)))
+    "Error(Interval spans 0)"
+    (mul-interval
+      x
+      (make-interval (/ 1.0 (upper-bound y))
+                     (/ 1.0 (lower-bound y))))))
+(define (make-interval a b) (cons a b))
+(define (lower-bound x) (car x))
+(define (upper-bound x) (cdr x))
+(define (print-interval x)
+  (display (format "[~a,~a]\n"
+                   (lower-bound x)
+                   (upper-bound x))))
 
+(div-interval
+  (make-interval 10 20)
+  (make-interval -10 20))
 
+(print-interval (mul-interval
+                  (make-interval -15 25)
+                  (make-interval -5 20)))
+(print-interval (mul-interval
+                  (make-interval 15 25)
+                  (make-interval -15 -5)))
+(print-interval (mul-interval
+                  (make-interval -20 -15)
+                  (make-interval -15 -5)))
 
-            
-
-
-
+; ---
