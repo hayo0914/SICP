@@ -111,4 +111,64 @@
 
 ; 2.2.2 Hierarchical Structures
 
+(define (count-leaves x)
+  (cond ((null? x) 0)
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x))
+                 (count-leaves (cdr x))))))
+(count-leaves (cons (cons 20 nil) (list 20 1 2 3 (list 20 50))))
+
+; Ex 2.24
+;
+; ( 1 ( 2 ( 3 4 ))) Box
+;   ^
+;  / \
+;  1  (2 (3 4)) Box
+;      ^
+;     / \
+;    2   (3 4) Box
+;         ^
+;        / \
+;       3   4
+
+; Ex 2.25
+
+(car (cdr (car (cdr (cdr (list 1 3 (list 5 7) 9))))))
+
+(car (car (list (list 7))))
+
+
+; Ex 2.26
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+
+(append x y)
+(cons x y)
+(list x y)
+
+; Ex 2.27
+(define (deep-reverse items)
+  (define (iter result rest)
+    (cond
+      ((null? rest)
+       result)
+      ((pair? (car rest))
+       (iter
+         (cons (deep-reverse (car rest)) result)
+         (cdr rest)))
+      (else
+        (iter
+          (cons (car rest) result)
+          (cdr rest)))))
+  (iter nil items))
+(display (deep-reverse (list (list 1 2) (list 3 4))))
+(display (deep-reverse (list 1 2 3 4)))
+(display (deep-reverse
+           (list
+             (list 1 2
+                   (list 7 8 9 10))
+             (list 3 4))))
+
+; Ex 2.28
+
 
