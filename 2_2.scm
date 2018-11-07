@@ -236,7 +236,107 @@
                    (branch-structure
                      (right-branch mobile)))))))
 
+(define a (make-mobile (make-branch 2 5) (make-branch 2 4))) 
+(total-weight a)
+
 ; c
+; False version
+(define (torque mobile)
+  (let ((left (left-branch mobile))
+        (right (right-branch mobile)))
+    (= (* (branch-length left)
+          (total-weight (branch-structure left)))
+       (* (branch-length right)
+          (total-weight (branch-structure right))))))
+
+(define a (make-mobile (make-branch 3 5) (make-branch 5 3))) 
+(torque a)
+
+; Next
+(define (torque branch)
+  (* (branch-length branch)
+     (total-weight (branch-structure branch))))
+
+(define (balanced? mobile)
+  (display (torque (left-branch mobile)))
+  (newline)
+  (display (torque (right-branch mobile)))
+  (newline)
+  (if (not (pair? mobile))
+    true
+    (and (= (torque (left-branch mobile))
+            (torque (right-branch mobile)))
+         (balanced?
+           (branch-structure (left-branch mobile)))
+         (balanced?
+           (branch-structure (right-branch mobile))))))
+
+(define a (make-mobile (make-branch 3 5) (make-branch 5 3))) 
+(balanced? a)
+
+(define m
+  (make-mobile
+    (make-branch
+      3 
+      (make-mobile
+        (make-branch 2 3)
+        (make-branch 2 3)))
+    (make-branch 3 12))) 
+(balanced? m)
+
+; d
+(define (make-mobile left right)
+  (cons left right))
+(define (make-branch length structure)
+  (cons length structure))
+
+; Mapping over trees
+(define (scale-tree tree factor)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+
+(display
+  (scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7))
+            2))
+
+; Another way
+(define (scale-tree tree factor)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+           (scale-tree sub-tree factor)
+           (* sub-tree factor)))
+       tree))
+
+(display
+  (scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7))
+            2))
+
+; Ex 2.30
+(define (map proc list)
+  (if (null? list)
+    nil
+    (cons (proc (car list))
+          (map proc (cdr list)))))
+
+(display (map square (list 1 2 3 4)))
+
+(define (square x) (* x x))
+(define (square-tree tree)
+  (map
+    (lambda (x)
+      (cond ((not (pair? x))
+             (square x))
+            (else
+              (square-tree x))))
+    tree))
+(display
+  (square-tree
+    (list 1 (list 2 (list 3 4) 5) (list 6 7))))
+
+; Ex 2.31
+
 
 
 
