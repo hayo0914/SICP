@@ -344,10 +344,9 @@
 (define (tree-map proc tree)
   (map
     (lambda (item)
-      (cond ((not (pair? item))
-             (proc item))
-            (else
-              (tree-map proc item))))
+      (if (not (pair? item))
+        (proc item)
+        (tree-map proc item)))
     tree))
 
 (display
@@ -355,6 +354,15 @@
     (list 1 (list 2 (list 3 4) 5) (list 6 7))))
 
 ; Ex 2.32
+(define (subsets s)
+  (if (null? s)
+    (list nil)
+    (let ((rest (subsets (cdr s))))
+      (append rest (map
+        (lambda (x)
+          (cons (car s) x))
+        rest)))))
+(display (subsets (list 1 2 3 4 5 6)))
 
 
 
