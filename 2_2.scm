@@ -170,5 +170,74 @@
              (list 3 4))))
 
 ; Ex 2.28
+(define (fringe items)
+  (define (iter result rest)
+    (cond
+      ((null? rest)
+       result)
+      ((pair? (car rest))
+       (iter
+         (append result (fringe (car rest)))
+         (cdr rest)))
+      (else
+        (iter
+          (append result (list (car rest)))
+          (cdr rest)))))
+  (iter nil items))
+(display (fringe (list 1 (list 0 10 30) 3 4 (list 5 6 7 8))))
+      
+; Ex 2.29
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+
+; a
+(define (left-branch mobile)
+  (car mobile))
+(define (right-branch mobile)
+  (car (cdr mobile)))
+(define (branch-length branch)
+  (car branch))
+(define (branch-structure branch)
+  (car (cdr branch)))
+
+; b
+
+; Bad version
+(define (total-weight mobile)
+  (define (iter result mobile)
+    (cond ((null? mobile)
+           0)
+           ((pair? mobile)
+            (+ result
+               (total-weight
+                 (branch-structure
+                   (left-branch mobile)))
+               (total-weight
+                 (branch-structure
+                   (right-branch mobile)))))
+           (else (+ result mobile))))
+  (iter 0 mobile))
+
+(define a (make-mobile (make-branch 2 5) (make-branch 2 4))) 
+(total-weight a)
+
+; Improved Version
+(define (total-weight mobile)
+  (cond ((null? mobile)
+         0)
+        ((not (pair? mobile))
+         mobile)
+        (else (+ (total-weight
+                   (branch-structure
+                     (left-branch mobile)))
+                 (total-weight
+                   (branch-structure
+                     (right-branch mobile)))))))
+
+; c
+
+
 
 
