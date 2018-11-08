@@ -522,7 +522,27 @@
 ; Usage
 (display (append (list 1 2 3) (list 4 5 6)))
 
+(define (length sequence)
+  (accumulate
+    (lambda (x y) (+ y 1))
+    0
+    sequence))
+; Usage
+(length (list 1 2 3 4 5 6 7 8 9 10))
 
+; Ex 2.34
 
+; Evaluate polynomial using Horner's rule.
+(define (horner-eval x coefficient-sequence)
+  (accumulate
+    (lambda (this-coeff higher-terms)
+      (+ this-coeff
+         (* x higher-terms)))
+    0
+    coefficient-sequence))
+(horner-eval 2 (list 1 3 0 5 0 1))
+; 1 + 3x + 5x^3 + x^5, x=2
+; 1 + 6 + 40 + 32 = 79
 
+; Ex 2.35
 
