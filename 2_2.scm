@@ -546,3 +546,46 @@
 
 ; Ex 2.35
 
+(define (count-leaves t)
+  (accumulate
+    (lambda (x s)
+      (+ s 
+         (if (pair? x)
+           (count-leaves x)
+           1)))
+  0
+  t))
+
+; Another solution
+(define (count-leaves t)
+  (accumulate + 0 (map (lambda (node)
+                         (if (pair? node)
+                           (count-leaves node)
+                           1))
+                       t)))
+
+; Usage
+(count-leaves (list 3 4 5 (list 4 5 6)))
+(define tree (list 1 2 3 (list 4 5 (list 6 7)))) 
+(count-leaves tree)  ;; => 7 
+
+; Ex 2.36
+
+; This is interesting because it's using map 
+; not only to get the each first element of all lists
+; but also to get the rest of the elements of all lists.
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+    nil
+    (cons
+      (accumulate op init (map (lambda (x) (car x)) seqs))
+      (accumulate-n op init (map (lambda (x) (cdr x)) seqs)))))
+; Usage
+(define s
+  (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+(display (accumulate-n + 0 s))
+(display (accumulate-n * 1 s))
+
+; Ex 2.37
+
+
