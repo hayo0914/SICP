@@ -364,6 +364,132 @@
         rest)))))
 (display (subsets (list 1 2 3 4 5 6)))
 
+; 2.2.3 Sequences as Conventional Interfaces
+
+; Another powerful design principle for
+; working with data structures
+; -- the use of "conventional interfaces"
+
+; Examples which is not using conventional interface
+(define (sum-odd-squares tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree))
+         (if (odd? tree) (square tree) 0))
+        (else (+ (sum-odd-squares (car tree))
+                 (sum-odd-squares (cdr tree))))))
+(define (square x) (* x x))
+
+(sum-odd-squares
+  (list 1 2 (list 3 4) 5))
+
+(define (even-fibs n)
+  (define (next k)
+    (if (> k n)
+      nil
+      (let ((f (fib k)))
+        (if (even? f)
+          (cons f (next (+ k 1)))
+          (next (+ k 1))))))
+  (next 0))
+(define (fib x)
+  (if (or (= x 0) (= x 1))
+    1
+    (+ (fib (- x 1)) (fib (- x 2)))))
+
+(display (even-fibs 20))
+
+; Sequence operations
+(define (map proc items)
+  (if (null? items)
+    nil
+    (cons (proc (car items))
+          (map proc (cdr items)))))
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+(display (filter odd? (list 1 2 3 4 5)))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+        (accumulate op initial (cdr sequence)))))
+(accumulate + 0 (list 1 2 3 4 5))
+
+; To enumerate interval
+(define (enumerate-interval low high)
+  (if (> low high)
+    nil
+    (cons low (enumerate-interval (+ low 1) high))))
+(display (enumerate-interval 2 7))
+; (2 3 4 5 6 7)
+
+; To enumerate the leaves of a tree
+(define (enumerate-tree tree)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (list tree))
+        (else (append (enumerate-tree (car tree))
+                      (enumerate-tree (cdr tree))))))
+(display (enumerate-tree (list 1 (list 2 (list 3 4) 5))))
+
+; Reformulate sum-odd-squares and even-fibs
+
+(define (sum-odd-squares tree)
+  (accumulate 
+    +
+    0
+    (map square
+         (filter odd?
+                 (enumerate-tree tree)))))
+(sum-odd-squares (list 1 2 3 (list 4 (list 5 6) 7)))
+; 1 + 9 + 25 + 49 = 84
+
+(define (even-fibs n)
+  (accumulate
+    cons
+    nil
+    (filter even?
+            (map fib
+                 (enumerate-interval 0 n)))))
+(display (even-fibs 25))
+
+; We can encourage modular design by providing a library
+; of standard components together with a
+; conventional interface for connecting the
+; components in flexible ways.
+
+; Modular construction is a powerful strategy for
+; controlling complexity in engineering design.
+
+(define (list-fib-squares n)
+  (accumulate
+    cons
+    nil
+    (map square
+         (map fib
+              (enumerate-interval 0 n)))))
+(display (list-fib-squares 10))
+
+(define (product-of-squares-of-odd-elements sequence)
+  (accumulate
+    *
+    1
+    (map square
+         (filter odd? sequence))))
+(product-of-squares-of-odd-elements (list 1 2 3 4 5))
+; 1 * 9 * 25 = 225
+
+; To find the salary of the hightest-paid programmer
+(define (salary-of-highest-paid-programmer records)
+  (accumulate
+    max
+    0
+    (map salary
+         (filter programmer? records))))
+(salary-of-highest-paid-programmer
 
 
 
