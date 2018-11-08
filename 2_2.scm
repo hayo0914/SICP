@@ -588,4 +588,28 @@
 
 ; Ex 2.37
 
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+; Usage
+(dot-product (list 1 2 3)
+             (list 4 5 6)) ;; => 32
+
+(define (matrix-*-vector m v)
+  (map (lambda (x) (dot-product x v)) m))
+; Usage
+(display
+  (matrix-*-vector
+    (list (list 1 2 3) (list 4 5 6))
+    (list 10 20 30))) ; => (140 320)
+
+; Check the answer validity
+; 1 2 3    10   1*10 + 2*20 + 3*30
+; 4 5 6 *  20 = 4*10 + 5*20 + 6*30
+;          30
+; = 140
+;   320
+
+(define (transpose mat)
+
+
 
