@@ -609,7 +609,109 @@
 ; = 140
 ;   320
 
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+    nil
+    (cons
+      (accumulate op init (map (lambda (x) (car x)) seqs))
+      (accumulate-n op init (map (lambda (x) (cdr x)) seqs)))))
+
 (define (transpose mat)
+  (accumulate-n
+    cons nil mat))
+
+; Usage
+(define m
+  (list (list 1 2 3) (list 4 5 6)))
+(display (transpose m)) ;; -> ((1 4) (2 5) (3 6))
+
+; Check the answer
+; 1 2 3 -> 1 4
+; 4 5 6    2 5
+;          3 6
+
+; Usage
+(define m2
+  (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+(display (transpose m2)) ;; -> ((1 4 7) (2 5 8) (3 6 9))
+
+; Check the answer
+; 1 2 3 -> 1 4 7
+; 4 5 6    2 5 8
+; 7 8 9    3 6 9
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (x) (matrix-*-vector cols x)) m)))
+; Usage
+(define m2
+  (list (list 1 2) (list 4 5)))
+(display (matrix-*-matrix m2 m2))
+
+; Check the answer
+; 1 2   1 2   1*1+2*4 1*2+2*5
+; 4 5 * 4 5 = 4*1+5*4 4*2+5*5
+;
+; = 9  12
+;   20 33
+
+; Ex 2.38
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+      result
+      (iter (op result (car rest))
+            (cdr rest))))
+  (iter initial sequence))
+
+(define (fold-right op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+      (fold-right op initial (cdr sequence)))))
+
+; Improved fold-right 
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+        (accumulate op initial (cdr sequence)))))
+(define (fold-right op initial sequene)
+  (accumulate op initial sequene))
+
+
+; fold-right
+(fold-right / 1 (list 1 2 3))
+
+; (1/(2/(3/1)))
+; 3/2
+; -> 1.5
+
+; fold-left
+(fold-left / 1 (list 1 2 3))
+; (((1/1)/2)/3)
+; 1/6
+; 0.1666
+
+; 1/1
+; -> 1/2
+; -> 1/6
+; -> 0.1666
+
+(display (fold-right list nil (list 1 2 3)))
+
+; fold-right
+; (1 (2 (3 ())))
+
+(display (fold-left list nil (list 1 2 3)))
+
+; fold-left
+; (((() 1) 2) 3)
+
+
+(display (fold-right + 0 (list 1 2 3)))
+(display (fold-left + 0 (list 1 2 3)))
+
 
 
 
