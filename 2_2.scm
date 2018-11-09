@@ -806,6 +806,21 @@
                  (map (lambda (j) (list i j))
                       (enumerate-interval 1 (- i 1))))
                (enumerate-interval 1 n)))))
+; Usage
 (display (prime-sum-pairs 5))
-;((2 1 3) (3 2 5) (4 1 5) (4 3 7) (5 2 7))
+; ((2 1 3) (3 2 5) (4 1 5) (4 3 7) (5 2 7))
+
+
+; Generate all the permutations of a set
+(define (permutations s)
+  (if (null? s)
+    (list nil)
+    (flatmap (lambda (x)
+               (map (lambda (p) (cons x p))
+                    (permutations (remove x s))))
+             s)))
+
+(remove 3 (list 1 2 3))
+
+(display (permutations (list 1 2 3)))
 
