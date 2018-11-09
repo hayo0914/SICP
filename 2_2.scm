@@ -712,6 +712,30 @@
 (display (fold-right + 0 (list 1 2 3)))
 (display (fold-left + 0 (list 1 2 3)))
 
+; Ex 2.39
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+      result
+      (iter (op result (car rest))
+            (cdr rest))))
+  (iter initial sequence))
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+        (accumulate op initial (cdr sequence)))))
+(define (fold-right op initial sequene)
+  (accumulate op initial sequene))
 
+(define (reverse sequene)
+  (fold-right
+    (lambda (x y) (append y (list x)))
+    nil sequene))
+(display (reverse (list 1 2 3 4 5)))
 
-
+(define (reverse sequene)
+  (fold-left
+    (lambda (x y) (cons y x))
+    nil sequene))
+(display (reverse (list 1 2 3 4 5)))
