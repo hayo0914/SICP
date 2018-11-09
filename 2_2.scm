@@ -762,8 +762,7 @@
       (enumerate-interval 1 n))))
 ; Usage
 (display (search-sum-prime 5))
-; ((2 1) (3 1) (3 2) (4 1) (4 2) (4 3) (5 1) (5 2) (5 3) (5 4))
-
+; ((2 1) (3 1) (3 2) (4 1) (4 2) (4 3) (5 1) (5 2) (5 3) (5 4)) 
 (define (flatmap proc seq)
   (accumulate append nil (map proc seq)))
 ; Usage
@@ -810,6 +809,28 @@
 (display (prime-sum-pairs 5))
 ; ((2 1 3) (3 2 5) (4 1 5) (4 3 7) (5 2 7))
 
+; Remove element (less appropriate style)
+(define (remove x items)
+  (cond
+    ((null? items) nil)
+    ((= x (car items))
+     (remove x (cdr items)))
+    (else
+      (cons (car items)
+            (remove x (cdr items))))))
+
+; Using filter to remove
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+(define (remove x items)
+  (filter (lambda (i) (not (= x i))) items))
+
+; Usage
+(display (remove 3 (list 1 2 3 4 5 6 7 3 8 9 10 3)))
 
 ; Generate all the permutations of a set
 (define (permutations s)
@@ -819,8 +840,8 @@
                (map (lambda (p) (cons x p))
                     (permutations (remove x s))))
              s)))
-
-(remove 3 (list 1 2 3))
-
+; Usage
 (display (permutations (list 1 2 3)))
+; ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
 
