@@ -833,6 +833,13 @@
 (display (remove 3 (list 1 2 3 4 5 6 7 3 8 9 10 3)))
 
 ; Generate all the permutations of a set
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+        (accumulate op initial (cdr sequence)))))
 (define (permutations s)
   (if (null? s)
     (list nil)
@@ -840,8 +847,86 @@
                (map (lambda (p) (cons x p))
                     (permutations (remove x s))))
              s)))
+
 ; Usage
 (display (permutations (list 1 2 3)))
 ; ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
 
+; Ex 2.40
 
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+         (map (lambda (j)
+                (list i j)) 
+              (enumerate-interval 1 (- i 1))))
+       (enumerate-interval 1 n)))
+; Usage
+(display (unique-pairs 5))
+
+(define (find-smallest-divisor n divisor)
+  (cond ((< n (* divisor divisor)) n)
+        ((= 0 (remainder n divisor))
+         divisor)
+        (else
+          (find-smallest-divisor
+            n (+ 1 divisor)))))
+(define (prime? x)
+  (= x (find-smallest-divisor x 2)))
+(define (prime-sum? pair)
+  (prime? (+ (car pair) (cadr pair))))
+
+(define (make-pair-sum pair)
+  (list (car pair)
+        (cadr pair)
+        (+ (car pair) (cadr pair))))
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+    (filter prime-sum?
+            (unique-pairs n))))
+(display (prime-sum-pairs 5))
+
+; Ex 2.41
+
+(define (unique-triples n)
+  (flatmap (lambda (i)
+         (flatmap (lambda (j)
+                (map (lambda (k) (list i j k))
+                     (enumerate-interval 1 (- j 1))))
+              (enumerate-interval 1 (- i 1))))
+       (enumerate-interval 1 n)))
+(display (unique-triples 5))
+
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+      result
+      (iter (op result (car rest))
+            (cdr rest))))
+  (iter initial sequence))
+
+(define (fold-right op initial sequence)
+  (if (null? sequence)
+    initial
+    (op (car sequence)
+      (fold-right op initial (cdr sequence)))))
+
+(define (sum numbers)
+  (fold-left + 0 numbers))
+
+(define (solve n s)
+  (filter
+    (lambda (triples)
+      (= (sum triples) s))
+    (unique-triples n)))
+
+(display (solve 20 12))
+
+; Ex 2.42
