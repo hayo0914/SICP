@@ -930,3 +930,19 @@
 (display (solve 20 12))
 
 ; Ex 2.42
+; skip for now
+
+; Ex 2.43
+; skip for now
+
+; 2.2.5 A picture language
+
+; Ex 2.44
+; skip
+
+; Ex 2.45
+; skip
+
+
+
+
