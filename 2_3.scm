@@ -207,6 +207,169 @@
          (cons (car s1) (union-set (cdr s1) s2)))))
 (display (union-set '(1 2 3 5 7 9) '(0 4 7 10)))
 
+; [Sets as binary trees](バイナリツリー)
+; We can do better than the ordered-list representation by
+; arranging the set elements in the form of a tree.
+
+; Each node of the tree holds one element of the set called
+; "entry" and a link to each of two other nodes.
+
+; The "left" link points to smaller than the one at the node,
+; and the "right" link to elements greater than the one at
+; the node.
+
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right)
+  (list entry left right))
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((= x (entry set)) true)
+        ((< x (entry set))
+         (element-of-set? x (left-branch set)))
+        ((> x (entry set))
+         (element-of-set? x (right-branch set)))))
+(define (adjoin-set x set)
+  (cond ((null? set) (make-tree x '() '()))
+        ((= x (entry set)) set)
+        ((< x (entry set))
+         (make-tree (entry set)
+                    (adjoin-set x (left-branch set))
+                    (right-branch set)))
+        ((> x (entry set))
+         (make-tree (entry set)
+                    (left-branch set)
+                    (adjoin-set x (right-branch set))))))
+
+(display 
+  (adjoin-set
+    5
+    (adjoin-set 15 (make-tree 10 '() '()))))
+; (10 (5 () ()) (15 () ()))
+
+; Ex 2.63
+
+; Convert binary tree to ordered list
+
+(define (tree->list-1 tree)
+  (if (null? tree)
+    '()
+    (append (tree->list-1 (left-branch tree))
+            (cons (entry tree)
+                  (tree->list-1 (right-branch tree))))))
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+      result-list
+      (copy-to-list (left-branch tree)
+                    (cons (entry tree)
+                          (copy-to-list (right-branch tree)
+                                        result-list)))))
+  (copy-to-list tree '()))
+
+(define t1
+  (adjoin-set
+    5
+    (adjoin-set 15 (make-tree 10 '() '()))))
+
+(display (tree->list-1 t1))
+(display (tree->list-2 t1))
+
+(define t2
+  (adjoin-set
+    4
+    (adjoin-set
+      3
+      (adjoin-set
+        2
+        (make-tree 1 '() '())))))
+
+(display t2)
+(display (tree->list-1 t2))
+(display (tree->list-2 t2))
+
+(define t3
+  (adjoin-set
+    1
+    (adjoin-set
+      2
+      (adjoin-set
+        3
+        (make-tree 4 '() '())))))
+
+(display t3)
+(display (tree->list-1 t3))
+(display (tree->list-2 t3))
+
+; Ex 2.64
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+(define (partial-tree elts n)
+  (if (= n 0)
+    (cons '() elts)
+    ; left-size = (length-1)/2
+    (let ((left-size (quotient (- n 1) 2)))
+      ; create left result (recursive)
+      ; -> (left tree, remains)
+      (let ((left-result (partial-tree elts left-size)))
+        (let ((left-tree (car left-result))
+              (non-left-elts (cdr left-result))
+              (right-size (- n (+ left-size 1))))
+          ; create right result (recursive)
+          (let ((this-entry (car non-left-elts))
+                (right-result (partial-tree (cdr non-left-elts)
+                                            right-size)))
+            (let ((right-tree (car right-result))
+                  (remaining-elts (cdr right-result)))
+              ; return tree and remaining-elements
+              (cons (make-tree this-entry left-tree right-tree)
+                    remaining-elts))))))))
+
+(display (list->tree '(1 3 5 7 9 11)))
+
+; Ex 2.65 ~ Ex 2.66
+; Skipping for now
+
+; 2.3.4 Example Huffman Encoding Trees
+
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+(define (leaf? object)
+  (eq? (car object) 'leaf))
+(define (symbol-leaf x) (cadr x))
+(define (weight-leaf x) (caddr x))
+(define (make-code-tree left right)
+  (list left
+        right
+        (append (symbols left) (symbols right))
+        (+ (weight left) (weight right))))
+(define (left-branch tree) (car tree))
+(define (right-branch tree) (cadr tree))
+(define (symbols tree)
+  (if (leaf? tree)
+    (list (symbol-leaf tree))
+    (caddr tree)))
+(define (weight tree)
+  (if (leaf? tree)
+    (weight-leaf tree)
+    (cadddr tree)))
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+      '()
+      (let ((next-branch
+              (choose-branch (car bits) current-branch)))
+        (if (leaf? next-branch)
+          (cons (symbol-leaf next-branch)
+                (decode-1 (cdr bits) next-branch))))))
+  (decode-1 bits tree))
+(define (choose-branch bit branch)
+  (cond ((= bit 0) (left-branch branch))
+        ((= bit 1) (right-branch branch))
+        (else (error "bad bit == SHOOSE BRANCH" bit))))
 
 
 
