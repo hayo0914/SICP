@@ -65,5 +65,12 @@
 (define (polar? z)
     (eq? (type-tag z) 'polar))
 
+; 2.4.4 データ主導プログラミングと加法性
+;       (Data-Directed Programming and Additivity)
+; データの型を調べ, 適切な手続きを呼び出す一般的戦略は
+; "Dispatching on type" という.
+; これはシステム設計で部品化を実現する強力な戦略である.
+
+
 
 
