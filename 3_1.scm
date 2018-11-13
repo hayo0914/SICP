@@ -121,3 +121,74 @@
 (s 100)
 (s 100)
 (s 'how-many-calls?)
+
+; Ex 3.3 ~ Ex 3.4
+; Skip
+
+; 3.1.2 The benefits of introducing assignment
+
+(define rand
+  (let ((x random-init))
+    (lambda ()
+      (set! x (rand-update x))
+      x)))
+
+(define (estimate-pi trials)
+  (sqrt (/ 6 (monte-carlo trials cesaro-test))))
+
+
+(define (cesaro-test)
+   (= (gcd (rand) (rand)) 1))
+
+
+(define (monte-carlo trials experiment)
+  (define (iter trials-remaining trials-passed)
+    (cond ((= trials-remaining 0)
+           (/ trials-passed trials))
+          ((experiment)
+           (iter (- trials-remaining 1) (+ trials-passed 1)))
+          (else
+           (iter (- trials-remaining 1) trials-passed))))
+  (iter trials 0))
+
+; Ex 3.5 ~ Ex 3.6
+; Skip
+
+
+; 3.1.3 The Costs of Introducing Assignment
+; 関数型プログラミングは代入を使わない
+
+(define (make-decrementer balance)
+  (lambda (amount)
+    (- balance amount)))
+(define (make-simplified-withdraw balance)
+  (lambda (amount)
+    (set! balance (- balance amount))
+    balance))
+
+(define D1 (make-decrementer 25))
+(define D2 (make-decrementer 25))
+(D1 10)
+(D2 10)
+(D1 5)
+
+(define W1 (make-simplified-withdraw 25))
+(define W2 (make-simplified-withdraw 25))
+(W1 20)
+(W1 20)
+(W2 10)
+
+; 代入を多用するプログラミングは, 
+; 命令的プログラミング(imperative programming)という.
+; 命令形の流儀で書いたプログラムは, 
+; 関数型プログラムでは発生し得ないバグを入れやすい.
+
+; 一般的に代入を使うプログラムでは, 代入の
+; 相対的順序を注意深く考え, 正しいバージョンの変数を
+; 使うよう注意深く確認しなければならない.
+; こういうことは関数型プログラミングにはない.
+
+; Ex 3.7 ~ Ex 3.8
+; Skip
+
+
