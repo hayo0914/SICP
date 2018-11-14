@@ -15,5 +15,19 @@
 ; 3.2.1 The Rules for Evaluation
 
 ; 3.2.2 Applying Simple Procedures
+; 3.2.3
+; 3.2.4 Internal Definition
+
+(define (sqrt x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (sqrt-iter guess)
+    (if (good-enough? guess)
+      guess
+      (sqrt-iter (improve guess))))
+  (sqrt-iter 1.0))
+
 
 
