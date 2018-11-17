@@ -688,4 +688,67 @@ X
 (set-value! F 212 'user)
 ;(set-value! C 20 'user) ; Contradiction
 
+; Ex 3.33
+
+(define (averager a b avg)
+  (define (process-new-value)
+    (cond ((and (has-value? a) (has-value? b))
+           (set-value! avg
+                       (/ (+ (get-value a) (get-value b)) 2.0)
+                       me))
+          ((and (has-value? a) (has-value? avg))
+           (set-value! b
+                       (- (* 2.0 (get-value avg)) (get-value a))
+                       me))
+          ((and (has-value? b) (has-value? avg))
+           (set-value! a
+                       (- (* 2.0 (get-value avg)) (get-value b))
+                       me))))
+  (define (process-forget-value)
+    (forget-value! a me)
+    (forget-value! b me)
+    (forget-value! avg me)
+    (process-new-value))
+  (define (me request)
+    (cond ((eq? request 'I-have-a-value)
+           (process-new-value))
+          ((eq? request 'I-lost-my-value)
+           (process-forget-value))
+          (else
+           (error "Unknown request -- AVERAGER" request))))
+  (connect a me)
+  (connect b me)
+  (connect avg me)
+  me)
+
+(define a (make-connector))
+(define b (make-connector))
+(define avg (make-connector))
+(averager a b avg)
+(probe "a" a)
+(probe "b" b)
+(probe "avg" avg)
+(set-value! a 5.0 'user)
+(set-value! avg 10.0 'user)
+
+; Ex 3.34
+(define (squarer a b)
+  (multiplier a a b))
+(define a (make-connector))
+(define b (make-connector))
+(probe "a" a)
+(probe "b" b)
+(squarer a b)
+(set-value! a 3.0 'user)
+(forget-value! a 'user)
+(set-value! b 4.0 'user)
+; The flaw of this program:
+; If you set the value of b to 4, 
+; the value of a supposed to be 2.
+; But actually, the value of a doesn't become 2
+; which is not correct because multiplier don't know
+; the 2 connectors out of 3 connectors is the same.
+
+; Ex 3.35 ~ Ex 3.36
+; Skip
 
