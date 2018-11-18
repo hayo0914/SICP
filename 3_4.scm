@@ -57,5 +57,126 @@
 ; --------------------
 ; Serializers in Scheme
 
+(define (make-account balance)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (let ((protected (make-serializer)))
+    (define (dispatch m)
+      (cond ((eq? m 'withdraw) (protected withdraw))
+            ((eq? m 'deposit) (protected deposit))
+            ((eq? m 'balance) balance)
+            (else (error "Unknown request -- MAKE-ACCOUNT"
+                         m))))
+    dispatch))
+
+; Ex 3.39 - Ex 3.42
+; Skip
+
+; --------------------
+; Complexity of using multiple shared resorces
+
+; Exporting the serializer in this way gives us
+; enough flexibility to implement a serialized
+; exhange program.
+(define (make-account-and-serializer balance)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (let ((balance-serializer (make-serializer)))
+    (define (dispatch m)
+      (cond ((eq? m 'withdraw) withdraw)
+            ((eq? m 'deposit) deposit)
+            ((eq? m 'balance) balance)
+            ((eq? m 'serializer) balance-serializer)
+            (else (error "Unknown request -- MAKE-ACCOUNT"
+                         m))))
+    dispatch))
+
+(define (deposit account amount)
+  (let ((s (account 'serializer))
+        (d (account 'deposit)))
+    ((s d) amount)))
+
+; Ex 3.43 - Ex 3.45
+; Skip
+
+; --------------------
+; Implementing serializers
+
+; A mutex is an object that supports two operations
+; - acuire
+; - release
+
+; In our implementation, each serializer has an
+; associated mutex.
+
+(define (make-serializer)
+  (let ((mutex (make-mutex)))
+    (lambda (p)
+      (define (serialized-p . args)
+        (mutex 'acquire)
+        (let ((val (apply p args)))
+          (mutex 'release)
+          val))
+      serialized-p)))
+
+(define (make-mutex)
+  (let ((cell (list false)))            
+    (define (the-mutex m)
+      (cond ((eq? m 'acquire)
+             (if (test-and-set! cell)
+                 (the-mutex 'acquire))) ; retry
+            ((eq? m 'release) (clear! cell))))
+    the-mutex))
+(define (clear! cell)
+  (set-car! cell false))
+
+; [Important]
+; There is a crucial subtlety here, which is the essential
+; place where concurrency control enters the system:
+; The test-and-set! operation must be performed
+; atomically.
+(define (test-and-set! cell)
+  (if (car cell)
+      true
+      (begin (set-car! cell true)
+             false)))
+
+; The actual implementation of test-and-set! depends
+; on the details of how our system runs concurrent processes.
+
+; For example, we might be executing processes on a
+; sequential processor using a "Time-slicing" mechanism
+; that cycle through the processes.
+; In that case, test-and-set! can work by disabling
+; time slicing during the testing and setting.
+
+; Alternatively, multiprocessing computers provide
+; instructions that support atomic operaions directly
+; in hardware.
+
+; Ex 3.46 - Ex 3.47
+; Skip
+
+; --------------------
+; Deadlock
+
+; Ex 3.48 - Ex 3.49
+; Skip
+
+; --------------------
+; Concurrency, time, and communication
+
 
 
