@@ -51,6 +51,7 @@
       (cons-stream
        low
        (stream-enumerate-interval (+ low 1) high))))
+
 (define (stream-filter pred stream)
   (cond ((stream-null? stream) the-empty-stream)
         ((pred (stream-car stream))
@@ -61,13 +62,15 @@
 
 (define (force delayed-object)
   (delayed-object))
-
-' delay macro
+; delay macro
 (define-syntax delay
   (syntax-rules ()
                 ((_ expr ...)
                  (lambda () expr ...))))
+(define (cons-stream a b)
+  (cons a (delay b)))
 
+; Usage of delay and force
 (define x 0)
 (define f (delay
   (set! x (+ x 1))
@@ -85,13 +88,38 @@
        (apply stream-map
               (cons proc (map stream-cdr argstreams))))))
 
+; Ex 3.51
+(define (show x)
+  (display-line x)
+  x)
+(define x (stream-map
+            show
+            (stream-enumerate-interval 0 10)))
+(stream-ref x 5)
+(stream-ref x 7)
 
+; Ex 3.52
+(define sum 0)
+(define (accum x)
+  (set! sum (+ x sum))
+  sum)
+(define seq
+  (stream-map accum
+              (stream-enumerate-interval 1 20)))
+(define y (stream-filter
+            even? seq))
+(define z (stream-filter
+            (lambda (x)
+              (= (remainder x 5) 0))
+            seq))
 
+(stream-ref y 7)
+(display-stream z)
 
+(display-stream seq)
+(display-stream (stream-enumerate-interval 1 20))
 
 
    
-
-
 
 
