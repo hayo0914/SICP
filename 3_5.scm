@@ -42,6 +42,8 @@
                  (cons a (delay b)))))
 
 (define (stream-ref s n)
+  (display s)
+  (newline)
   (if (= n 0)
       (stream-car s)
       (stream-ref (stream-cdr s) (- n 1))))
@@ -153,4 +155,251 @@
 (stream-car integers)
 (stream-car (stream-cdr integers))
 
+(define (divisible? x y) (= (remainder x y) 0))
+(define no-sevens
+    (stream-filter (lambda (x) (not (divisible? x 7)))
+                                    integers))
+(stream-ref no-sevens 30)
 
+; Check Result
+(display-stream-to no-sevens 30)
+
+(define (display-stream-to s n)
+  (define (it s c)
+    (display (stream-car s))
+    (newline)
+    (if (< c n)
+      (it
+        (stream-cdr s) (+ c 1))))
+  (it s 0))
+
+(define (f n r)
+  (if (= n 0)
+    r
+    (f (if (not (divisible? (+ r 1) 7)) (- n 1) n)
+       (+ r 1))))
+(f 30 1)
+
+; --------------------
+; The sieve of Eratosthenes
+; which construct the infinite stream of
+; prime numbers.
+
+(define (sieve stream)
+  (cons-stream
+    (stream-car stream)
+    (sieve (stream-filter
+             (lambda (x)
+               (not (divisible? x (stream-car stream))))
+             (stream-cdr stream)))))
+(define primes (sieve (integers-starting-from 2)))
+
+(stream-ref primes 10)
+
+; (sieve (s 2 3 4))
+
+; (sieve 
+;   (cons
+;     2
+;     (sieve (filter x:2 (s 3 4)))))
+
+; (sieve 
+;   (cons
+;     2
+;     (sieve (filter x:2 (s 3 4)))))
+
+; (sieve 
+;   (cons
+;     2
+;     (sieve
+;        (filter x:2
+;               (s 3 4)))))
+
+; (sieve 
+;   (cons
+;     2
+;     (cons
+;       3
+;       (sieve
+;         (filter x: 3
+;           (filter x:2
+;             (s 3 4)))))
+
+; (sieve 
+;   (cons
+;     2
+;     (cons
+;       3
+;       (cons 4
+;         (sieve
+;           (filter x: 4
+;             (filter x: 3
+;               (filter x:2
+;                 (s 3 4)))))
+;                  
+
+; --------------------
+; Defining streams implicityly
+
+(define ones (cons-stream 1 ones))
+
+(stream-car ones)
+(stream-car (stream-cdr (stream-cdr ones)))
+
+(define (add-streams s1 s2)
+  (stream-map + s1 s2))
+(define integers
+  (cons-stream 1
+               (add-streams ones integers)))
+
+(define (stream-map proc s1 s2)
+  (if (or (stream-null? (car s1))
+          (stream-null? (car s2)))
+      the-empty-stream
+      (cons-stream (proc (stream-car s1) (stream-car s2))
+                   (stream-map
+                     proc
+                     (stream-cdr s1)
+                     (stream-cdr s2)))))
+
+(stream-car integers)
+(stream-car (stream-cdr (stream-cdr integers)))
+
+; Fibonacci numbers
+
+(define fibs
+  (cons-stream
+    0
+    (cons-stream
+      1
+      (add-streams
+        (stream-cdr fibs)
+        fibs))))
+
+(define (display-stream-to s n)
+  (define (it s c)
+    (display (stream-car s))
+    (newline)
+    (if (< c n)
+      (it
+        (stream-cdr s) (+ c 1))))
+  (it s 0))
+
+(display-stream-to fibs 12)
+
+; Exp
+(define s
+  (cons-stream 0
+               (cons-stream 1
+                            s)))
+(display-stream-to s 5)
+; 0 1 0 1 0
+
+
+(define (scale-stream stream factor)
+  (stream-map (lambda (x) (* x factor)) stream))
+(define double (cons-stream 1 (scale-stream double 2)))
+(display-stream-to double 5)
+; 1 2 4 8 16 32
+
+; Test where a number n is prime
+; by checking whethere n is divisible by
+; a prime (not by just any integer)
+; less than or equal to root n
+(define (prime? n)
+  (define (iter ps)
+    (cond ((> (square (stream-car ps)) n) true)
+          ((divisible? n (stream-car ps)) false)
+          (else (iter (stream-cdr ps)))))
+  (iter primes))
+(define (square x) (* x x))
+
+(prime? 131)
+
+; Ex 3.53
+(define s (cons-stream 1 (add-streams s s)))
+(display-stream-to s 5)
+
+; Ex 3.54
+(define (mul-streams s1 s2)
+  (stream-map * s1 s2))
+(define integers
+  (cons-stream 1
+               (add-streams ones integers)))
+(define factorials
+  (cons-stream 1
+               (mul-streams factorials
+                            (stream-cdr integers))))
+
+(stream-ref factorials 0)
+(stream-ref factorials 1)
+(stream-ref factorials 2)
+(stream-ref factorials 3)
+(stream-ref factorials 4)
+(stream-ref factorials 5)
+
+; Ex 3.55 - Ex3.62
+; Skip
+
+; --------------------
+; 3.5.3 Exploiting the Stream Paradigm
+
+; Streams with delayed evalueation
+; can be powerful modeling tool,
+; providing many of benefits of
+; local state and assignment.
+
+; Formulating iterations as stream processes
+
+; In this sqrt, these gesses are the successive
+; values of state variable.
+(define (sqrt-improve guess x)
+  (average guess (/ x guess)))
+(define (average x y) (/ (+ x y) 2.0))
+
+(sqrt-improve (sqrt-improve 1 4) 4)
+
+; Instead of it, we can generate the
+; infinite stream of guesses.
+(define (sqrt-stream x)
+  (define guesses
+    (cons-stream 1.0
+                 (stream-map
+                   (lambda (guess)
+                     (sqrt-improve guess x))
+                   guesses)))
+  guesses)
+(display-stream-to (sqrt-stream 2) 7)
+
+; Generate approximation to pi.
+(define (pi-summands n)
+  (cons-stream (/ 1.0 n)
+               (stream-map - (pi-summands (+ n 2)))))
+(define pi-stream
+    (scale-stream (partial-sums (pi-summands 1)) 4))
+(define (partial-sums s)
+  (cons-stream (stream-car s)
+               (add-streams
+                 (stream-cdr s)
+                 (partial-sums s))))
+(define (stream-map proc . argstreams)
+  (if (stream-null? (car argstreams))
+      the-empty-stream
+      (cons-stream
+       (apply proc (map stream-car argstreams))
+       (apply stream-map
+              (cons proc (map stream-cdr argstreams))))))
+(display-stream-to pi-stream 100)
+
+; The sequence accelerator converts a sequence
+; of approximations to a new sequences
+; that converges to the same value as the original,
+; only faster.
+(define (euler-transform s)
+  (let ((s0 (stream-ref s 0))           ; Sn-1
+        (s1 (stream-ref s 1))           ; Sn
+        (s2 (stream-ref s 2)))          ; Sn+1
+    (cons-stream (- s2 (/ (square (- s2 s1))
+                          (+ s0 (* -2 s1) s2)))
+                 (euler-transform (stream-cdr s)))))
+(display-stream-to (euler-transform pi-stream) 100)
