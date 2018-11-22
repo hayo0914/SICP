@@ -42,8 +42,6 @@
                  (cons a (delay b)))))
 
 (define (stream-ref s n)
-  (display s)
-  (newline)
   (if (= n 0)
       (stream-car s)
       (stream-ref (stream-cdr s) (- n 1))))
@@ -341,6 +339,38 @@
 ; Ex 3.55 - Ex3.62
 ; Skip
 
+
+; Ex 3.56
+
+(define (merge s1 s2)
+  (cond ((stream-null? s1) s2)
+        ((stream-null? s2) s1)
+        (else
+          (let ((s1car (stream-car s1))
+                (s2car (stream-car s2)))
+            (cond
+              ((< s1car s2car)
+               (cons-stream s1car
+                            (merge (stream-cdr s1) s2)))
+              ((> s1car s2car)
+               (cons-stream s2car
+                            (merge s1 (stream-cdr s2))))
+              (else
+                (cons-stream s1car
+                             (merge (stream-cdr s1)
+                                    (stream-cdr s2)))))))))
+(define (scale-stream stream factor)
+  (stream-map (lambda (x) (* x factor)) stream))
+
+(define S (cons-stream
+            1
+            (merge
+              (merge
+                (scale-stream integers 2)
+                (scale-stream integers 3))
+              (scale-stream integers 5))))
+(display-stream-to S 10)
+
 ; --------------------
 ; 3.5.3 Exploiting the Stream Paradigm
 
@@ -403,3 +433,80 @@
                           (+ s0 (* -2 s1) s2)))
                  (euler-transform (stream-cdr s)))))
 (display-stream-to (euler-transform pi-stream) 100)
+
+; Namely, we create a stream of streams
+; (a structure we'll call a tableau)
+; in which each stream is the transform of
+; the preceding one:
+
+(define (make-tableau transform s)
+  (cons-stream s
+               (make-tableau transform
+                             (transform s))))
+(define (accelerated-sequence transform s)
+  (stream-map stream-car
+              (make-tableau transform s)))
+
+; Usage
+(display-stream
+  (accelerated-sequence euler-transform
+                        pi-stream))
+
+; ret = 3.141592653589778 (so accurate)
+; pi  = 3.14159265359
+
+; The result is impressive. 
+; Taking eight terms of the sequence yields 
+; the correct value of to 14 decimal places.
+; If we had used only the original sequence,
+; we would need to compute on the order of 10^13 terms
+; to get that much accuracy!
+
+; Ex 3.63 - Ex 3.65
+; Skip
+
+; --------------------
+; Infinite streams of pairs
+
+(stream-filter
+  (lambda (pair)
+    (prime? (+ (car pair) (cadr pair))))
+  int-pairs)
+
+(define (pairs s t)
+  (cons-stream
+    (list (stream-car s) (stream-car t))
+    (interleave
+      (stream-map (lambda (x) (list (stream-car s) x))
+                  (stream-cdr t))
+      (pairs (stream-cdr s) (stream-cdr t)))))
+(define (interleave s1 s2)
+  (if (stream-null? s1)
+      s2
+      (cons-stream (stream-car s1)
+                   (interleave s2 (stream-cdr s1)))))
+(define (integers-starting-from n)
+    (cons-stream n (integers-starting-from (+ n 1))))
+(define integers (integers-starting-from 1))
+
+(display-stream-to (pairs integers integers) 12)
+; (1 1)
+; (1 2)
+; (2 2)
+; (1 3)
+; (2 3)
+; (1 4)
+; (3 3)
+; (1 5)
+; (2 4)
+; (1 6)
+; (3 4)
+; (1 7)
+; (2 5)
+
+; Ex 3.66 - Ex 3.76
+; Skip
+
+
+
+
