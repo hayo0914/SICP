@@ -24,6 +24,23 @@
 ; that has not yet been constructed, the stream will
 ; automatically construct just enough more of itself ; to produce the required part, thus preserving ; the illusion that the entire stream exists.
 
+
+; delay macro
+(define-syntax delay
+  (syntax-rules ()
+                ((_ expr ...)
+                 (lambda () expr ...))))
+; force macro
+(define-syntax force
+  (syntax-rules ()
+                ((_ x)
+                 (x))))
+; cons-stream macro
+(define-syntax cons-stream
+  (syntax-rules ()
+                ((_ a b)
+                 (cons a (delay b)))))
+
 (define (stream-ref s n)
   (if (= n 0)
       (stream-car s)
@@ -51,7 +68,6 @@
       (cons-stream
        low
        (stream-enumerate-interval (+ low 1) high))))
-
 (define (stream-filter pred stream)
   (cond ((stream-null? stream) the-empty-stream)
         ((pred (stream-car stream))
@@ -62,13 +78,6 @@
 
 (define (force delayed-object)
   (delayed-object))
-; delay macro
-(define-syntax delay
-  (syntax-rules ()
-                ((_ expr ...)
-                 (lambda () expr ...))))
-(define (cons-stream a b)
-  (cons a (delay b)))
 
 ; Usage of delay and force
 (define x 0)
@@ -78,6 +87,13 @@
   (newline)))
 
 (force f)
+
+; Use of cons-stream
+(define s
+  (cons-stream 1
+               2))
+(stream-car s)
+(stream-cdr s)
 
 ; Ex 3.50
 (define (stream-map proc . argstreams)
@@ -119,7 +135,22 @@
 (display-stream seq)
 (display-stream (stream-enumerate-interval 1 20))
 
+; --------------------
+; 3.5.2 Infinite Streams
 
-   
+; We have seen how to support the illusion of
+; manipulating streams as complete entities
+; even though, in actuality, we compute only
+; as much of the stream as we need to access.
+
+; What is more striking, we can use streams
+; to represent sequences that are infinitely long.
+
+(define (integers-starting-from n)
+    (cons-stream n (integers-starting-from (+ n 1))))
+(define integers (integers-starting-from 1))
+
+(stream-car integers)
+(stream-car (stream-cdr integers))
 
 
